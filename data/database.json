@@ -1,0 +1,18 @@
+{
+  "appointments": [],
+  "records": [],
+  "blacklist": [],
+  "settings": {
+    "weekdays": [
+      4
+    ],
+    "timeRanges": [
+      "14:00-15:00",
+      "15:00-16:00"
+    ],
+    "slotLimit": 5,
+    "advanceDays": 7
+  },
+  "lastUpdate": "2026-07-14T16:37:59.088Z",
+  "version": "2.0"
+}
