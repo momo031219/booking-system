@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>两江医院药学部阳光接待预约系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 24px; margin-bottom: 8px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .tab {
+            flex: 1;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            color: #2a5298;
+            border-bottom: 3px solid #2a5298;
+            background: white;
+        }
+        .tab:hover { color: #2a5298; }
+        .content { padding: 30px; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        .form-group label .required { color: #e74c3c; margin-left: 4px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #2a5298;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+            color: #333;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-info {
+            background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+            color: white;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+            width: auto;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2a5298;
+        }
+        .card h3 {
+            color: #2a5298;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+        .status-expired { background: #f8d7da; color: #721c24; }
+        .status-valid { background: #d4edda; color: #155724; }
+        .message {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .message.success { background: #d4edda; color: #155724; display: block; }
+        .message.error { background: #f8d7da; color: #721c24; display: block; }
+        .message.info { background: #d1ecf1; color: #0c5460; display: block; }
+        .message.warning { background: #fff3cd; color: #856404; display: block; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        tr:hover { background: #f8f9fa; }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal h2 { margin-bottom: 20px; color: #2a5298; }
+        .modal-close {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        .admin-login {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::after {
+            content: "点击查看";
+            position: absolute;
+            bottom: 4px;
+            right: 8px;
+            font-size: 11px;
+            opacity: 0.7;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.3);
+        }
+        .stat-card h4 { font-size: 28px; margin-bottom: 4px; }
+        .stat-card p { opacity: 0.9; font-size: 13px; }
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .filter-bar input, .filter-bar select {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .time-slot {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 4px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .time-slot:hover { border-color: #667eea; }
+        .time-slot.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        .time-slot.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f8f9fa;
+        }
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .sync-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .sync-status.online { background: #d4edda; color: #155724; }
+        .sync-status.offline { background: #f8d7da; color: #721c24; }
+        .sync-status.syncing { background: #fff3cd; color: #856404; }
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-left-color: currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .filter-bar { flex-direction: column; }
+            .filter-bar > * { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 两江医院药学部阳光接待预约系统</h1>
+            <p>规范接待流程 · 透明高效管理 · 全程可追溯</p>
+        </div>
+        <div class="tabs" id="mainTabs">
+            <button class="tab active" onclick="switchTab('booking', this)">📋 预约登记</button>
+            <button class="tab" onclick="switchTab('query', this)">🔍 结果查询</button>
+            <button class="tab" onclick="switchTab('admin', this)">⚙️ 后台管理</button>
+        </div>
+        <div class="content">
+            <div id="booking" class="section active">
+                <div class="card">
+                    <h3>填写预约信息</h3>
+                    <p style="color:#666;font-size:13px;margin-bottom:16px;">请如实填写以下信息，提交后系统自动审核</p>
+                    <div id="bookingMsg" class="message"></div>
+                    <form id="bookingForm" onsubmit="submitBooking(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>姓名 <span class="required">*</span></label>
+                                <input type="text" id="bName" required placeholder="请输入真实姓名">
+                            </div>
+                            <div class="form-group">
+                                <label>性别 <span class="required">*</span></label>
+                                <select id="bGender" required>
+                                    <option value="">请选择</option>
+                                    <option value="男">男</option>
+                                    <option value="女">女</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>身份证号码 <span class="required">*</span></label>
+                                <input type="text" id="bIdCard" required placeholder="18位身份证号码" maxlength="18" onblur="checkIdCard()">
+                            </div>
+                            <div class="form-group">
+                                <label>联系电话 <span class="required">*</span></label>
+                                <input type="tel" id="bPhone" required placeholder="11位手机号码" maxlength="11">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>公司名称 <span class="required">*</span></label>
+                                <input type="text" id="bCompany" required placeholder="企业全称">
+                            </div>
+                            <div class="form-group">
+                                <label>企业地址 <span class="required">*</span></label>
+                                <input type="text" id="bAddress" required placeholder="企业注册地址">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>预约拜访日期 <span class="required">*</span></label>
+                            <input type="date" id="bDate" required onchange="loadTimeSlots()">
+                        </div>
+                        <div class="form-group">
+                            <label>选择时段 <span class="required">*</span></label>
+                            <div id="timeSlots" style="padding: 10px 0;">
+                                <p style="color:#999;font-size:14px;">请先选择拜访日期</p>
+                            </div>
+                            <input type="hidden" id="bTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label>来访目的 <span class="required">*</span></label>
+                            <select id="bPurpose" required onchange="toggleOtherPurpose()">
+                                <option value="">请选择</option>
+                                <option value="药品配送沟通">药品配送沟通</option>
+                                <option value="药品产品介绍">药品产品介绍</option>
+                                <option value="学术会议邀请">学术会议邀请</option>
+                                <option value="业务合作洽谈">业务合作洽谈</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group hidden" id="otherPurposeGroup">
+                            <label>请填写具体来访目的 <span class="required">*</span></label>
+                            <input type="text" id="bPurposeOther" placeholder="请详细说明来访目的">
+                        </div>
+                        <div class="form-group">
+                            <label>备注</label>
+                            <textarea id="bRemark" rows="3" placeholder="其他需要说明的事项"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">提交预约申请</button>
+                    </form>
+                </div>
+            </div>
+            <div id="query" class="section">
+                <div class="card">
+                    <h3>查询预约结果</h3>
+                    <p style="color:#666;font-size:13px;margin-bottom:16px;">输入身份证号码查询预约审核状态</p>
+                    <div id="queryMsg" class="message"></div>
+                    <div class="form-group">
+                        <label>身份证号码</label>
+                        <input type="text" id="qIdCard" placeholder="请输入身份证号码" maxlength="18">
+                    </div>
+                    <button class="btn btn-success" onclick="queryResult()">查询结果</button>
+                    <div id="queryResult" style="margin-top:24px;"></div>
+                </div>
+            </div>
+            <div id="admin" class="section">
+                <div id="adminLogin">
+                    <div class="admin-login">
+                        <h2 style="text-align:center;color:#2a5298;margin-bottom:8px;">后台管理登录</h2>
+                        <p style="text-align:center;color:#666;margin-bottom:24px;">请输入管理员密码</p>
+                        <div id="loginMsg" class="message"></div>
+                        <div class="form-group">
+                            <label>管理员密码</label>
+                            <input type="password" id="adminPwd" placeholder="请输入密码" onkeydown="if(event.key==='Enter')adminLogin()">
+                        </div>
+                        <button class="btn btn-primary" onclick="adminLogin()">登录</button>
+                        <p style="text-align:center;color:#999;font-size:13px;margin-top:16px;">忘记密码？请联系系统管理员重置</p>
+                    </div>
+                </div>
+                <div id="adminPanel" class="hidden">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                        <div class="sync-status offline" id="cloudStatus">
+                            <span class="spinner" id="cloudSpinner" style="display:none;"></span>
+                            <span id="cloudStatusText">未连接云端</span>
+                        </div>
+                        <button class="btn btn-sm btn-info" onclick="pullFromCloud()">🔄 从云端拉取数据</button>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card" onclick="jumpToAppointments('all')">
+                            <h4 id="statTotal">0</h4>
+                            <p>总预约数</p>
+                        </div>
+                        <div class="stat-card" onclick="jumpToAppointments('pending')">
+                            <h4 id="statPending">0</h4>
+                            <p>待审核</p>
+                        </div>
+                        <div class="stat-card" onclick="jumpToAppointments('today')">
+                            <h4 id="statToday">0</h4>
+                            <p>今日预约</p>
+                        </div>
+                    </div>
+                    <div class="tabs" style="margin-bottom:20px;">
+                        <button class="tab active" onclick="switchAdminTab('appointments', this)">预约管理</button>
+                        <button class="tab" onclick="switchAdminTab('records', this)">备案资料</button>
+                        <button class="tab" onclick="switchAdminTab('blacklist', this)">黑名单</button>
+                        <button class="tab" onclick="switchAdminTab('settings', this)">时段设置</button>
+                        <button class="tab" onclick="switchAdminTab('cloud', this)">☁️ 云端配置</button>
+                    </div>
+                    <div id="admin-appointments" class="admin-section">
+                        <div class="filter-bar">
+                            <input type="date" id="filterDate" placeholder="筛选日期">
+                            <select id="filterStatus">
+                                <option value="">全部状态</option>
+                                <option value="pending">待审核</option>
+                                <option value="approved">已通过</option>
+                                <option value="rejected">已拒绝</option>
+                            </select>
+                            <input type="text" id="filterIdCard" placeholder="身份证号筛选">
+                            <button class="btn btn-sm btn-secondary" onclick="filterAppointments()">筛选</button>
+                            <button class="btn btn-sm btn-warning" onclick="exportToExcel()">导出Excel</button>
+                        </div>
+                        <div style="overflow-x:auto;">
+                            <table>
+                                <thead><tr><th>提交时间</th><th>姓名</th><th>身份证</th><th>公司</th><th>预约时间</th><th>状态</th><th>操作</th></tr></thead>
+                                <tbody id="appointmentsTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="admin-records" class="admin-section hidden">
+                        <button class="btn btn-sm btn-success" onclick="showAddRecord()" style="margin-bottom:16px;">+ 添加备案</button>
+                        <table>
+                            <thead><tr><th>姓名</th><th>身份证号</th><th>公司名称</th><th>备案日期</th><th>有效期至</th><th>状态</th><th>操作</th></tr></thead>
+                            <tbody id="recordsTable"></tbody>
+                        </table>
+                    </div>
+                    <div id="admin-blacklist" class="admin-section hidden">
+                        <button class="btn btn-sm btn-danger" onclick="showAddBlacklist()" style="margin-bottom:16px;">+ 添加黑名单</button>
+                        <table>
+                            <thead><tr><th>姓名</th><th>身份证号</th><th>原因</th><th>添加日期</th><th>操作</th></tr></thead>
+                            <tbody id="blacklistTable"></tbody>
+                        </table>
+                    </div>
+                    <div id="admin-settings" class="admin-section hidden">
+                        <div class="card">
+                            <h3>可预约时段设置</h3>
+                            <div class="form-group">
+                                <label>每周可预约日期（多选）</label>
+                                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
+                                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" class="weekday" value="1"> 周一</label>
+                                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" class="weekday" value="2"> 周二</label>
+                                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" class="weekday" value="3"> 周三</label>
+                                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" class="weekday" value="4"> 周四</label>
+                                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" class="weekday" value="5"> 周五</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>每日时段（用逗号分隔）</label>
+                                <input type="text" id="timeRanges" placeholder="09:00-10:00,14:00-15:00,15:00-16:00">
+                            </div>
+                            <div class="form-group">
+                                <label>每个时段名额限制</label>
+                                <input type="number" id="slotLimit" value="5" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label>提前预约天数</label>
+                                <input type="number" id="advanceDays" value="7" min="1" max="30">
+                            </div>
+                            <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
+                        </div>
+                        <div class="card" style="margin-top:20px;border-left-color:#e74c3c;">
+                            <h3 style="color:#e74c3c;">🔐 安全管理</h3>
+                            <div class="form-group">
+                                <label>修改管理员密码</label>
+                                <input type="password" id="changePwdOld" placeholder="当前密码" style="margin-bottom:8px;">
+                                <input type="password" id="changePwdNew" placeholder="新密码（至少6位）" style="margin-bottom:8px;">
+                                <input type="password" id="changePwdConfirm" placeholder="确认新密码">
+                            </div>
+                            <button class="btn btn-danger" onclick="changeAdminPassword()" style="width:auto;">修改密码</button>
+                        </div>
+                    </div>
+                    <div id="admin-cloud" class="admin-section hidden">
+                        <div class="card">
+                            <h3>☁️ GitHub 云端数据中心</h3>
+                            <p style="color:#666;font-size:13px;margin-bottom:16px;">所有业务数据存储在 GitHub 仓库中，换电脑登录只需配置一次即可同步全部数据。</p>
+                            <div id="cloudConfigForm">
+                                <div class="form-group">
+                                    <label>GitHub Personal Access Token <span class="required">*</span></label>
+                                    <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                                    <p style="font-size:12px;color:#666;margin-top:4px;">GitHub Settings → Developer settings → Personal access tokens → Fine-grained tokens，权限勾选 <strong>Contents (Read and Write)</strong></p>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>仓库所有者 <span class="required">*</span></label>
+                                        <input type="text" id="ghOwner" placeholder="如: yourname">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>仓库名 <span class="required">*</span></label>
+                                        <input type="text" id="ghRepo" placeholder="如: booking-system">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>数据文件路径</label>
+                                    <input type="text" id="ghPath" value="data/database.json" placeholder="如: data/database.json">
+                                </div>
+                                <div class="form-group">
+                                    <label>分支名</label>
+                                    <input type="text" id="ghBranch" value="main" placeholder="main">
+                                </div>
+                                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                                    <button class="btn btn-primary" onclick="saveCloudConfig()" style="width:auto;">💾 保存并连接</button>
+                                    <button class="btn btn-success" onclick="pullFromCloud()" style="width:auto;">📥 从云端拉取</button>
+                                    <button class="btn btn-warning" onclick="pushToCloudManual()" style="width:auto;">📤 强制推送至云端</button>
+                                </div>
+                            </div>
+                            <div id="cloudStatusDetail" style="margin-top:20px;padding:16px;background:#f8f9fa;border-radius:8px;font-size:13px;">
+                                <div style="margin-bottom:8px;"><strong>连接状态：</strong><span id="cloudConnStatus">未配置</span></div>
+                                <div style="margin-bottom:8px;"><strong>上次同步：</strong><span id="cloudLastSync">无</span></div>
+                                <div><strong>数据量：</strong><span id="cloudDataSize">预约 0 条 / 备案 0 条 / 黑名单 0 条</span></div>
+                            </div>
+                            <div style="background:#fff3cd;padding:12px;border-radius:8px;font-size:13px;color:#856404;margin-top:16px;">
+                                <strong>📋 使用指南：</strong><br>
+                                1. <strong>首次使用</strong>：填写 Token 和仓库信息 → 点击"保存并连接" → 数据自动同步<br>
+                                2. <strong>换电脑登录</strong>：在新浏览器打开系统 → 进入后台 → 填写相同 Token → 点击"从云端拉取"<br>
+                                3. <strong>数据冲突</strong>：若本地与云端不一致，以<strong>云端为准</strong>，可手动"强制推送"覆盖<br>
+                                4. <strong>安全建议</strong>：仓库设为<strong>私有</strong>，Token 定期轮换
+                            </div>
+                        </div>
+                        <div class="card" style="margin-top:20px;border-left-color:#28a745;">
+                            <h3 style="color:#28a745;">📦 本地备份（应急）</h3>
+                            <p style="color:#666;font-size:13px;margin-bottom:16px;">当 GitHub 无法访问时，可导出本地数据或从文件恢复。</p>
+                            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                                <button class="btn btn-success" onclick="exportLocalBackup()" style="width:auto;">📥 导出本地备份</button>
+                                <button class="btn btn-warning" onclick="importLocalBackup()" style="width:auto;">📤 从文件恢复</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:24px;text-align:center;">
+                        <button class="btn btn-secondary" onclick="adminLogout()" style="width:auto;padding:10px 24px;">退出登录</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+        <div class="modal">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">标题</h2>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+<script>
+const CONFIG_KEY = 'sunshine_cloud_config';
+const PWD_KEY = 'sunshine_admin_pwd';
+const DEFAULT_PWD = 'wh159753';
+let memData = {
+    appointments: [],
+    records: [],
+    blacklist: [],
+    settings: { weekdays: [4], timeRanges: ['14:00-15:00', '15:00-16:00'], slotLimit: 5, advanceDays: 7 }
+};
+let cloudConfig = null;
+let isSyncing = false;
+let cloudDebounceTimer = null;
+let currentAdminTab = 'appointments';
+
+function getAdminPassword() {
+    return localStorage.getItem(PWD_KEY) || DEFAULT_PWD;
+}
+
+function getCloudConfig() {
+    if (cloudConfig) return cloudConfig;
+    try { const raw = localStorage.getItem(CONFIG_KEY); if (raw) { cloudConfig = JSON.parse(raw); return cloudConfig; } } catch(e) {}
+    return null;
+}
+function saveCloudConfigLocal(config) { cloudConfig = config; localStorage.setItem(CONFIG_KEY, JSON.stringify(config)); }
+
+async function githubApi(method, body) {
+    const cfg = getCloudConfig();
+    if (!cfg) throw new Error('未配置云端');
+    const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${cfg.path}?ref=${cfg.branch}`;
+    const headers = { 'Authorization': `Bearer ${cfg.token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' };
+    const res = await fetch(url, method ? { method, headers, body: JSON.stringify(body) } : { headers });
+    if (res.status === 401) throw new Error('Token 无效或已过期');
+    if (res.status === 404 && method !== 'PUT') return null;
+    if (res.status === 403) throw new Error('API 速率限制或权限不足');
+    if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || `HTTP ${res.status}`); }
+    return res.status === 204 ? null : await res.json();
+}
+
+async function pullFromCloud() {
+    const cfg = getCloudConfig();
+    if (!cfg) { alert('请先配置云端信息（后台 → ☁️ 云端配置）'); return false; }
+    updateCloudStatus('syncing', '正在从云端拉取...');
+    try {
+        const data = await githubApi();
+        if (!data) { await pushToCloudInternal(); updateCloudStatus('online', '云端已连接（首次推送）'); return true; }
+        const content = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+        if (content.appointments) memData.appointments = content.appointments;
+        if (content.records) memData.records = content.records;
+        if (content.blacklist) memData.blacklist = content.blacklist;
+        if (content.settings) memData.settings = content.settings;
+        saveLocalCache();
+        cfg.lastSync = new Date().toISOString(); cfg.lastSyncError = null; saveCloudConfigLocal(cfg);
+        updateCloudStatus('online', '云端已连接');
+        refreshAllViews();
+        return true;
+    } catch (err) {
+        console.error('Pull error:', err);
+        cfg.lastSyncError = err.message; saveCloudConfigLocal(cfg);
+        updateCloudStatus('offline', '同步失败: ' + err.message);
+        loadLocalCache();
+        alert('云端拉取失败，已加载本地缓存。错误: ' + err.message);
+        return false;
+    }
+}
+
+async function pushToCloudInternal() {
+    const cfg = getCloudConfig();
+    if (!cfg) return false;
+    const payload = { appointments: memData.appointments, records: memData.records, blacklist: memData.blacklist, settings: memData.settings, lastUpdate: new Date().toISOString(), version: '2.0' };
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+    let sha = '';
+    try { const existing = await githubApi(); if (existing && existing.sha) sha = existing.sha; } catch(e) {}
+    const body = { message: `数据更新 ${new Date().toLocaleString('zh-CN')}`, content, branch: cfg.branch };
+    if (sha) body.sha = sha;
+    await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${cfg.path}?ref=${cfg.branch}`, {
+        method: 'PUT', headers: { 'Authorization': `Bearer ${cfg.token}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+        body: JSON.stringify(body)
+    });
+    cfg.lastSync = new Date().toISOString(); cfg.lastSyncError = null;
+    saveCloudConfigLocal(cfg); saveLocalCache();
+    return true;
+}
+
+async function pushToCloudManual() {
+    if (!confirm('确定将当前本地数据强制推送到云端？这将覆盖云端现有数据。')) return;
+    updateCloudStatus('syncing', '正在推送...');
+    try { await pushToCloudInternal(); updateCloudStatus('online', '推送成功'); alert('✅ 数据已成功推送至云端'); }
+    catch (err) { updateCloudStatus('offline', '推送失败: ' + err.message); alert('❌ 推送失败: ' + err.message); }
+}
+
+async function syncToCloud() {
+    const cfg = getCloudConfig();
+    if (!cfg || isSyncing) return;
+    isSyncing = true;
+    updateCloudStatus('syncing', '同步中...');
+    try { await pushToCloudInternal(); updateCloudStatus('online', '已同步'); }
+    catch (err) { updateCloudStatus('offline', '同步失败'); }
+    finally { isSyncing = false; }
+}
+
+function saveLocalCache() { localStorage.setItem('sunshine_cache', JSON.stringify(memData)); }
+function loadLocalCache() {
+    try { const raw = localStorage.getItem('sunshine_cache'); if (raw) { const data = JSON.parse(raw); if (data.appointments) memData.appointments = data.appointments; if (data.records) memData.records = data.records; if (data.blacklist) memData.blacklist = data.blacklist; if (data.settings) memData.settings = data.settings; } } catch(e) {}
+}
+
+function setData(key, value) {
+    memData[key] = value;
+    saveLocalCache();
+    if (cloudDebounceTimer) clearTimeout(cloudDebounceTimer);
+    cloudDebounceTimer = setTimeout(() => { syncToCloud(); }, 2000);
+}
+
+function switchTab(tabName, el) {
+    document.querySelectorAll('#mainTabs .tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    if (el) el.classList.add('active');
+    document.getElementById(tabName).classList.add('active');
+    if (tabName === 'admin') initAdminLogin();
+}
+
+function switchAdminTab(tabName, el) {
+    currentAdminTab = tabName;
+    document.querySelectorAll('#adminPanel .tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.admin-section').forEach(s => s.classList.add('hidden'));
+    if (el) el.classList.add('active');
+    document.getElementById('admin-' + tabName).classList.remove('hidden');
+    if (tabName === 'appointments') renderAppointments();
+    if (tabName === 'records') renderRecords();
+    if (tabName === 'blacklist') renderBlacklist();
+    if (tabName === 'settings') loadSettings();
+    if (tabName === 'cloud') loadCloudSettings();
+}
+
+function switchAdminTabDirect(tabName) {
+    const tabMap = { 'appointments': 0, 'records': 1, 'blacklist': 2, 'settings': 3, 'cloud': 4 };
+    const tabs = document.querySelectorAll('#adminPanel .tab');
+    if (tabMap[tabName] !== undefined && tabs[tabMap[tabName]]) {
+        switchAdminTab(tabName, tabs[tabMap[tabName]]);
+    } else { switchAdminTab(tabName, null); }
+}
+
+function initAdminLogin() {
+    document.getElementById('adminLogin').classList.remove('hidden');
+    document.getElementById('adminPanel').classList.add('hidden');
+    document.getElementById('adminPwd').value = '';
+}
+
+function adminLogin() {
+    try {
+        const pwd = document.getElementById('adminPwd').value;
+        if (pwd === getAdminPassword()) {
+            document.getElementById('adminLogin').classList.add('hidden');
+            document.getElementById('adminPanel').classList.remove('hidden');
+            afterAdminLogin();
+        } else { showMsg('loginMsg', 'error', '密码错误'); }
+    } catch (err) { console.error('adminLogin error:', err); alert('登录出现异常，请刷新页面重试'); }
+}
+
+async function afterAdminLogin() {
+    const cfg = getCloudConfig();
+    if (cfg) { await pullFromCloud(); }
+    else { loadLocalCache(); updateCloudStatus('offline', '未配置云端（单机模式）'); }
+    loadAdminData();
+}
+
+function adminLogout() {
+    document.getElementById('adminLogin').classList.remove('hidden');
+    document.getElementById('adminPanel').classList.add('hidden');
+    document.getElementById('adminPwd').value = '';
+    initAdminLogin();
+}
+
+function changeAdminPassword() {
+    const oldPwd = document.getElementById('changePwdOld').value;
+    const newPwd = document.getElementById('changePwdNew').value;
+    const confirm = document.getElementById('changePwdConfirm').value;
+    if (oldPwd !== getAdminPassword()) { alert('当前密码错误'); return; }
+    if (!newPwd || newPwd.length < 6) { alert('新密码至少6位'); return; }
+    if (newPwd !== confirm) { alert('两次输入的密码不一致'); return; }
+    localStorage.setItem(PWD_KEY, newPwd);
+    alert('✅ 密码已修改成功');
+    document.getElementById('changePwdOld').value = '';
+    document.getElementById('changePwdNew').value = '';
+    document.getElementById('changePwdConfirm').value = '';
+}
+
+function updateCloudStatus(status, text) {
+    const el = document.getElementById('cloudStatus');
+    const spinner = document.getElementById('cloudSpinner');
+    const txt = document.getElementById('cloudStatusText');
+    if (!el || !txt) return;
+    el.className = 'sync-status ' + status;
+    txt.textContent = text;
+    spinner.style.display = status === 'syncing' ? 'inline-block' : 'none';
+    const detailStatus = document.getElementById('cloudConnStatus');
+    const detailSync = document.getElementById('cloudLastSync');
+    const detailSize = document.getElementById('cloudDataSize');
+    if (detailStatus) detailStatus.textContent = status === 'online' ? '已连接' : status === 'syncing' ? '同步中' : '未连接';
+    if (detailSync) detailSync.textContent = cloudConfig && cloudConfig.lastSync ? formatDate(cloudConfig.lastSync) : '无';
+    if (detailSize) detailSize.textContent = `预约 ${memData.appointments.length} 条 / 备案 ${memData.records.length} 条 / 黑名单 ${memData.blacklist.length} 条`;
+}
+
+function loadCloudSettings() {
+    const cfg = getCloudConfig();
+    if (cfg) {
+        document.getElementById('ghToken').value = cfg.token || '';
+        document.getElementById('ghOwner').value = cfg.owner || '';
+        document.getElementById('ghRepo').value = cfg.repo || '';
+        document.getElementById('ghPath').value = cfg.path || 'data/database.json';
+        document.getElementById('ghBranch').value = cfg.branch || 'main';
+    }
+    updateCloudStatus(cfg ? (cfg.lastSyncError ? 'offline' : 'online') : 'offline', cfg ? (cfg.lastSyncError ? '上次同步失败' : '已配置') : '未配置云端');
+}
+
+function saveCloudConfig() {
+    const config = {
+        token: document.getElementById('ghToken').value.trim(),
+        owner: document.getElementById('ghOwner').value.trim(),
+        repo: document.getElementById('ghRepo').value.trim(),
+        path: document.getElementById('ghPath').value.trim() || 'data/database.json',
+        branch: document.getElementById('ghBranch').value.trim() || 'main',
+        lastSync: null, lastSyncError: null
+    };
+    if (!config.token || !config.owner || !config.repo) { alert('请填写 Token、仓库所有者和仓库名'); return; }
+    saveCloudConfigLocal(config);
+    alert('配置已保存，正在尝试连接云端...');
+    pullFromCloud();
+}
+
+function toggleOtherPurpose() {
+    const select = document.getElementById('bPurpose');
+    const otherGroup = document.getElementById('otherPurposeGroup');
+    const otherInput = document.getElementById('bPurposeOther');
+    if (select.value === '其他') { otherGroup.classList.remove('hidden'); otherInput.required = true; }
+    else { otherGroup.classList.add('hidden'); otherInput.required = false; otherInput.value = ''; }
+}
+
+function loadTimeSlots() {
+    const date = document.getElementById('bDate').value;
+    const container = document.getElementById('timeSlots');
+    if (!date) { container.innerHTML = '<p style="color:#999;font-size:14px;">请先选择拜访日期</p>'; return; }
+    const settings = memData.settings;
+    const dayOfWeek = new Date(date).getDay();
+    if (!settings.weekdays.includes(dayOfWeek)) { container.innerHTML = '<p style="color:#e74c3c;font-size:14px;">该日期不在可预约范围内，请选择其他日期</p>'; return; }
+    const dateApps = memData.appointments.filter(a => a.date === date && a.status !== 'rejected');
+    let html = '';
+    settings.timeRanges.forEach(range => {
+        const count = dateApps.filter(a => a.time === range).length;
+        const full = count >= settings.slotLimit;
+        html += `<span class="time-slot ${full ? 'disabled' : ''}" onclick="selectSlot(this, '${range}', ${full})">${range} (${count}/${settings.slotLimit})</span>`;
+    });
+    container.innerHTML = html || '<p style="color:#999;">未设置时段</p>';
+}
+
+function selectSlot(el, range, full) {
+    if (full) return;
+    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('bTime').value = range;
+}
+
+function checkIdCard() {
+    const idCard = document.getElementById('bIdCard').value;
+    if (!idCard || idCard.length !== 18) return;
+    if (memData.blacklist.some(b => b.idCard === idCard)) { showMsg('bookingMsg', 'warning', '⚠️ 该身份证存在于黑名单中，预约可能被拒绝。'); }
+}
+
+function submitBooking(e) {
+    e.preventDefault();
+    const idCard = document.getElementById('bIdCard').value;
+    const phone = document.getElementById('bPhone').value;
+    const time = document.getElementById('bTime').value;
+    let purpose = document.getElementById('bPurpose').value;
+    const selectedDate = document.getElementById('bDate').value;
+    if (!/^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(idCard)) { showMsg('bookingMsg', 'error', '身份证号码格式不正确'); return; }
+    if (!/^1[3-9]\d{9}$/.test(phone)) { showMsg('bookingMsg', 'error', '手机号码格式不正确'); return; }
+    if (!time) { showMsg('bookingMsg', 'error', '请选择预约时段'); return; }
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + (memData.settings.advanceDays || 7));
+    if (selectedDate > maxDate.toISOString().split('T')[0]) { showMsg('bookingMsg', 'error', `预约日期超出范围，最多可提前 ${memData.settings.advanceDays || 7} 天预约`); return; }
+    if (purpose === '其他') {
+        const otherVal = document.getElementById('bPurposeOther').value.trim();
+        if (!otherVal) { showMsg('bookingMsg', 'error', '请填写具体来访目的'); return; }
+        purpose = '其他：' + otherVal;
+    }
+    const existing = memData.appointments.find(a => a.idCard === idCard && a.date === selectedDate && a.status !== 'rejected');
+    if (existing) { showMsg('bookingMsg', 'error', '该身份证当日已有预约，请勿重复提交'); return; }
+    const appointment = {
+        id: Date.now().toString(),
+        name: document.getElementById('bName').value,
+        gender: document.getElementById('bGender').value,
+        idCard: idCard,
+        phone: phone,
+        company: document.getElementById('bCompany').value,
+        address: document.getElementById('bAddress').value,
+        date: selectedDate,
+        time: time,
+        purpose: purpose,
+        remark: document.getElementById('bRemark').value,
+        submitTime: new Date().toISOString(),
+        status: 'pending',
+        checkResult: '',
+        manualBy: ''
+    };
+    memData.appointments.push(appointment);
+    autoCheckAppointment(appointment);
+    setData('appointments', memData.appointments);
+    showMsg('bookingMsg', 'success', `✅ 预约提交成功！<br>预约编号：${appointment.id}<br>系统已自动审核，请保存好编号或身份证用于查询。`);
+    document.getElementById('bookingForm').reset();
+    document.getElementById('timeSlots').innerHTML = '<p style="color:#999;font-size:14px;">请先选择拜访日期</p>';
+    document.getElementById('otherPurposeGroup').classList.add('hidden');
+}
+
+function autoCheckAppointment(app) {
+    let result = 'approved', reason = '自动审核通过';
+    if (memData.blacklist.some(b => b.idCard === app.idCard)) { result = 'rejected'; reason = '身份证存在于黑名单'; }
+    else {
+        const record = memData.records.find(r => r.idCard === app.idCard);
+        if (!record) { result = 'rejected'; reason = '未在科室完成备案资料'; }
+        else if (record.expireDate && record.expireDate < app.date) { result = 'rejected'; reason = '备案资料有效期无法覆盖预约日期'; }
+    }
+    if (result === 'approved') {
+        const dateApps = memData.appointments.filter(a => a.date === app.date && a.time === app.time && a.status === 'approved');
+        if (dateApps.length >= memData.settings.slotLimit) { result = 'rejected'; reason = '该时段名额已满'; }
+    }
+    const idx = memData.appointments.findIndex(a => a.id === app.id);
+    if (idx !== -1) { memData.appointments[idx].status = result; memData.appointments[idx].checkResult = reason; memData.appointments[idx].autoCheckTime = new Date().toISOString(); }
+}
+
+function queryResult() {
+    const idCard = document.getElementById('qIdCard').value;
+    if (!idCard) { showMsg('queryMsg', 'error', '请输入身份证号码'); return; }
+    const apps = memData.appointments.filter(a => a.idCard === idCard).sort((a, b) => new Date(b.submitTime) - new Date(a.submitTime));
+    if (apps.length === 0) { showMsg('queryMsg', 'error', '未找到该身份证的预约记录'); document.getElementById('queryResult').innerHTML = ''; return; }
+    let html = '<div style="margin-top:16px;">';
+    apps.forEach(app => {
+        const statusText = { 'pending': '待审核', 'approved': '已通过', 'rejected': '已拒绝' }[app.status];
+        const statusClass = { 'pending': 'status-pending', 'approved': 'status-approved', 'rejected': 'status-rejected' }[app.status];
+        html += `<div class="card fade-in" style="border-left-color: ${app.status === 'approved' ? '#28a745' : app.status === 'rejected' ? '#dc3545' : '#ffc107'};"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h3 style="margin:0;">预约详情</h3><span class="status-badge ${statusClass}">${statusText}</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:14px;"><div><strong>姓名：</strong>${app.name}</div><div><strong>身份证：</strong>${app.idCard}</div><div><strong>公司：</strong>${app.company}</div><div><strong>联系电话：</strong>${app.phone}</div><div><strong>预约日期：</strong>${app.date}</div><div><strong>预约时段：</strong>${app.time}</div><div><strong>来访目的：</strong>${app.purpose}</div><div><strong>提交时间：</strong>${formatDate(app.submitTime)}</div></div>${app.checkResult ? `<div style="margin-top:12px;padding:10px;background:#f8f9fa;border-radius:6px;font-size:13px;"><strong>审核说明：</strong>${app.checkResult}</div>` : ''}${app.status === 'approved' ? `<div style="margin-top:16px;padding:16px;background:#d4edda;border-radius:8px;text-align:center;"><h4 style="color:#155724;margin-bottom:8px;">✅ 预约成功</h4><p style="color:#155724;font-size:14px;">请按预约时间准时到访，携带身份证原件</p></div>` : ''}${app.status === 'rejected' ? `<div style="margin-top:16px;padding:16px;background:#f8d7da;border-radius:8px;text-align:center;"><h4 style="color:#721c24;margin-bottom:8px;">❌ 预约未通过</h4><p style="color:#721c24;font-size:14px;">原因：${app.checkResult}</p></div>` : ''}${app.status === 'pending' ? `<div style="margin-top:16px;padding:16px;background:#fff3cd;border-radius:8px;text-align:center;"><h4 style="color:#856404;margin-bottom:8px;">⏳ 审核中</h4><p style="color:#856404;font-size:14px;">预计审核时间：${formatDate(app.autoCheckTime)}</p></div>` : ''}</div>`;
+    });
+    html += '</div>';
+    document.getElementById('queryResult').innerHTML = html;
+    showMsg('queryMsg', 'success', `共找到 ${apps.length} 条记录`);
+}
+
+function loadAdminData() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('statTotal').textContent = memData.appointments.length;
+    document.getElementById('statPending').textContent = memData.appointments.filter(a => a.status === 'pending').length;
+    document.getElementById('statToday').textContent = memData.appointments.filter(a => a.date === today).length;
+    renderAppointments();
+}
+
+function refreshAllViews() {
+    loadAdminData();
+    if (currentAdminTab === 'records') renderRecords();
+    if (currentAdminTab === 'blacklist') renderBlacklist();
+    if (currentAdminTab === 'settings') loadSettings();
+}
+
+function jumpToAppointments(type) {
+    switchAdminTabDirect('appointments');
+    if (type === 'pending') { document.getElementById('filterStatus').value = 'pending'; document.getElementById('filterDate').value = ''; }
+    else if (type === 'today') { document.getElementById('filterDate').value = new Date().toISOString().split('T')[0]; document.getElementById('filterStatus').value = ''; }
+    else { document.getElementById('filterDate').value = ''; document.getElementById('filterStatus').value = ''; document.getElementById('filterIdCard').value = ''; }
+    renderAppointments();
+}
+
+function renderAppointments() {
+    const filterDate = document.getElementById('filterDate').value;
+    const filterStatus = document.getElementById('filterStatus').value;
+    const filterId = document.getElementById('filterIdCard').value;
+    let filtered = [...memData.appointments];
+    if (filterDate) filtered = filtered.filter(a => a.date === filterDate);
+    if (filterStatus) filtered = filtered.filter(a => a.status === filterStatus);
+    if (filterId) filtered = filtered.filter(a => a.idCard.includes(filterId));
+    filtered.sort((a, b) => new Date(b.submitTime) - new Date(a.submitTime));
+    const tbody = document.getElementById('appointmentsTable');
+    if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;">暂无数据</td></tr>'; return; }
+    tbody.innerHTML = filtered.map(app => {
+        const statusText = { 'pending': '待审核', 'approved': '已通过', 'rejected': '已拒绝' }[app.status];
+        const statusClass = { 'pending': 'status-pending', 'approved': 'status-approved', 'rejected': 'status-rejected' }[app.status];
+        return `<tr><td>${formatDate(app.submitTime)}</td><td>${app.name}</td><td>${app.idCard}</td><td>${app.company}</td><td>${app.date}<br><small>${app.time}</small></td><td><span class="status-badge ${statusClass}">${statusText}</span></td><td><button class="btn btn-sm btn-success" onclick="manualApprove('${app.id}')">通过</button><button class="btn btn-sm btn-danger" onclick="manualReject('${app.id}')">拒绝</button><button class="btn btn-sm btn-secondary" onclick="viewDetail('${app.id}')">详情</button><button class="btn btn-sm btn-danger" onclick="deleteAppointment('${app.id}')" style="background:#dc3545;">删除</button></td></tr>`;
+    }).join('');
+}
+
+function filterAppointments() { renderAppointments(); }
+
+function manualApprove(id) {
+    const idx = memData.appointments.findIndex(a => a.id === id);
+    if (idx !== -1) { memData.appointments[idx].status = 'approved'; memData.appointments[idx].checkResult = '管理员手动通过'; memData.appointments[idx].manualBy = 'admin'; setData('appointments', memData.appointments); renderAppointments(); loadAdminData(); alert('已通过'); }
+}
+
+function manualReject(id) {
+    const reason = prompt('请输入拒绝原因：');
+    if (!reason) return;
+    const idx = memData.appointments.findIndex(a => a.id === id);
+    if (idx !== -1) { memData.appointments[idx].status = 'rejected'; memData.appointments[idx].checkResult = reason; memData.appointments[idx].manualBy = 'admin'; setData('appointments', memData.appointments); renderAppointments(); loadAdminData(); alert('已拒绝'); }
+}
+
+function deleteAppointment(id) {
+    if (!confirm('确定删除该预约记录？删除后不可恢复。')) return;
+    const idx = memData.appointments.findIndex(a => a.id === id);
+    if (idx !== -1) { memData.appointments.splice(idx, 1); setData('appointments', memData.appointments); renderAppointments(); loadAdminData(); }
+}
+
+function viewDetail(id) {
+    const app = memData.appointments.find(a => a.id === id);
+    if (!app) return;
+    document.getElementById('modalTitle').textContent = '预约详情';
+    document.getElementById('modalContent').innerHTML = `<div style="font-size:14px;line-height:2;"><p><strong>预约编号：</strong>${app.id}</p><p><strong>姓名：</strong>${app.name}（${app.gender}）</p><p><strong>身份证：</strong>${app.idCard}</p><p><strong>电话：</strong>${app.phone}</p><p><strong>公司：</strong>${app.company}</p><p><strong>地址：</strong>${app.address}</p><p><strong>预约时间：</strong>${app.date} ${app.time}</p><p><strong>来访目的：</strong>${app.purpose}</p><p><strong>备注：</strong>${app.remark || '无'}</p><p><strong>提交时间：</strong>${formatDate(app.submitTime)}</p><p><strong>审核状态：</strong>${app.status === 'approved' ? '已通过' : app.status === 'rejected' ? '已拒绝' : '待审核'}</p><p><strong>审核说明：</strong>${app.checkResult || '暂无'}</p></div>`;
+    document.getElementById('modal').classList.add('active');
+}
+
+function exportToExcel() {
+    if (memData.appointments.length === 0) { alert('暂无数据可导出'); return; }
+    const headers = ['预约编号', '姓名', '性别', '身份证号码', '联系电话', '公司名称', '企业地址', '预约日期', '预约时段', '来访目的', '备注', '提交时间', '审核状态', '审核说明'];
+    let csvContent = '\uFEFF' + headers.join(',') + '\n';
+    memData.appointments.forEach(app => {
+        const statusText = { 'pending': '待审核', 'approved': '已通过', 'rejected': '已拒绝' }[app.status];
+        const row = [app.id, app.name, app.gender, app.idCard, app.phone, app.company, app.address, app.date, app.time, app.purpose, app.remark || '', formatDate(app.submitTime), statusText, app.checkResult || ''].map(field => { const str = String(field).replace(/"/g, '""'); return `"${str}"`; });
+        csvContent += row.join(',') + '\n';
+    });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `两江医院药学部预约数据_${new Date().toISOString().split('T')[0]}.csv`;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+}
+
+function renderRecords() {
+    const today = new Date().toISOString().split('T')[0];
+    const tbody = document.getElementById('recordsTable');
+    if (memData.records.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;">暂无备案记录</td></tr>'; return; }
+    tbody.innerHTML = memData.records.map((r, i) => {
+        const isExpired = r.expireDate && r.expireDate < today;
+        const statusClass = isExpired ? 'status-expired' : 'status-valid';
+        const statusText = isExpired ? '已过期' : '有效';
+        return `<tr><td>${r.name}</td><td>${r.idCard}</td><td>${r.company}</td><td>${r.date}</td><td>${r.expireDate || '永久'}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td><td><button class="btn btn-sm btn-success" onclick="editRecord(${i})" style="background:#28a745;">修改</button><button class="btn btn-sm btn-danger" onclick="deleteRecord(${i})">删除</button></td></tr>`;
+    }).join('');
+}
+
+function showAddRecord() {
+    document.getElementById('modalTitle').textContent = '添加备案资料';
+    document.getElementById('modalContent').innerHTML = `<div class="form-group"><label>姓名 <span class="required">*</span></label><input type="text" id="rName" placeholder="姓名"></div><div class="form-group"><label>身份证号 <span class="required">*</span></label><input type="text" id="rIdCard" placeholder="身份证号" maxlength="18"></div><div class="form-group"><label>公司名称 <span class="required">*</span></label><input type="text" id="rCompany" placeholder="公司名称"></div><div class="form-row"><div class="form-group"><label>备案日期 <span class="required">*</span></label><input type="date" id="rDate" value="${new Date().toISOString().split('T')[0]}"></div><div class="form-group"><label>有效期至</label><input type="date" id="rExpireDate" placeholder="留空则永久有效"></div></div><button class="btn btn-primary" onclick="addRecord()">保存</button>`;
+    document.getElementById('modal').classList.add('active');
+}
+
+function addRecord() {
+    const name = document.getElementById('rName').value;
+    const idCard = document.getElementById('rIdCard').value;
+    const company = document.getElementById('rCompany').value;
+    const date = document.getElementById('rDate').value;
+    const expireDate = document.getElementById('rExpireDate').value;
+    if (!name || !idCard || !company || !date) { alert('请填写完整必填项'); return; }
+    memData.records.push({ name, idCard, company, date, expireDate: expireDate || null });
+    setData('records', memData.records);
+    closeModal(); renderRecords();
+}
+
+function deleteRecord(idx) {
+    if (!confirm('确定删除？')) return;
+    memData.records.splice(idx, 1);
+    setData('records', memData.records);
+    renderRecords();
+}
+
+function editRecord(idx) {
+    const r = memData.records[idx];
+    if (!r) return;
+    document.getElementById('modalTitle').textContent = '修改备案资料';
+    document.getElementById('modalContent').innerHTML = `<div class="form-group"><label>姓名 <span class="required">*</span></label><input type="text" id="editRName" value="${r.name}"></div><div class="form-group"><label>身份证号 <span class="required">*</span></label><input type="text" id="editRIdCard" value="${r.idCard}" maxlength="18"></div><div class="form-group"><label>公司名称 <span class="required">*</span></label><input type="text" id="editRCompany" value="${r.company}"></div><div class="form-row"><div class="form-group"><label>备案日期 <span class="required">*</span></label><input type="date" id="editRDate" value="${r.date}"></div><div class="form-group"><label>有效期至</label><input type="date" id="editRExpireDate" value="${r.expireDate || ''}"></div></div><button class="btn btn-primary" onclick="saveEditRecord(${idx})">保存修改</button>`;
+    document.getElementById('modal').classList.add('active');
+}
+
+function saveEditRecord(idx) {
+    const name = document.getElementById('editRName').value;
+    const idCard = document.getElementById('editRIdCard').value;
+    const company = document.getElementById('editRCompany').value;
+    const date = document.getElementById('editRDate').value;
+    const expireDate = document.getElementById('editRExpireDate').value;
+    if (!name || !idCard || !company || !date) { alert('请填写完整必填项'); return; }
+    memData.records[idx] = { name, idCard, company, date, expireDate: expireDate || null };
+    setData('records', memData.records);
+    closeModal(); renderRecords();
+}
+
+function renderBlacklist() {
+    const tbody = document.getElementById('blacklistTable');
+    if (memData.blacklist.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;">暂无黑名单</td></tr>'; return; }
+    tbody.innerHTML = memData.blacklist.map((b, i) => `<tr><td>${b.name}</td><td>${b.idCard}</td><td>${b.reason}</td><td>${b.date}</td><td><button class="btn btn-sm btn-success" onclick="removeBlacklist(${i})">移除</button></td></tr>`).join('');
+}
+
+function showAddBlacklist() {
+    document.getElementById('modalTitle').textContent = '添加黑名单';
+    document.getElementById('modalContent').innerHTML = `<div class="form-group"><label>姓名</label><input type="text" id="blName" placeholder="姓名"></div><div class="form-group"><label>身份证号</label><input type="text" id="blIdCard" placeholder="身份证号" maxlength="18"></div><div class="form-group"><label>原因</label><input type="text" id="blReason" placeholder="加入黑名单的原因"></div><button class="btn btn-danger" onclick="addBlacklist()">添加</button>`;
+    document.getElementById('modal').classList.add('active');
+}
+
+function addBlacklist() {
+    const name = document.getElementById('blName').value;
+    const idCard = document.getElementById('blIdCard').value;
+    const reason = document.getElementById('blReason').value;
+    if (!name || !idCard || !reason) { alert('请填写完整'); return; }
+    memData.blacklist.push({ name, idCard, reason, date: new Date().toISOString().split('T')[0] });
+    setData('blacklist', memData.blacklist);
+    closeModal(); renderBlacklist();
+}
+
+function removeBlacklist(idx) {
+    if (!confirm('确定从黑名单移除？')) return;
+    memData.blacklist.splice(idx, 1);
+    setData('blacklist', memData.blacklist);
+    renderBlacklist();
+}
+
+function loadSettings() {
+    const settings = memData.settings;
+    document.querySelectorAll('.weekday').forEach(cb => { cb.checked = settings.weekdays.includes(parseInt(cb.value)); });
+    document.getElementById('timeRanges').value = settings.timeRanges.join(',');
+    document.getElementById('slotLimit').value = settings.slotLimit;
+    document.getElementById('advanceDays').value = settings.advanceDays || 7;
+}
+
+function saveSettings() {
+    const weekdays = [];
+    document.querySelectorAll('.weekday:checked').forEach(cb => weekdays.push(parseInt(cb.value)));
+    const timeRanges = document.getElementById('timeRanges').value.split(',').map(s => s.trim()).filter(s => s);
+    const slotLimit = parseInt(document.getElementById('slotLimit').value);
+    const advanceDays = parseInt(document.getElementById('advanceDays').value);
+    memData.settings = { weekdays, timeRanges, slotLimit, advanceDays };
+    setData('settings', memData.settings);
+    updateDateMax();
+    alert('设置已保存');
+}
+
+function exportLocalBackup() {
+    const payload = { appointments: memData.appointments, records: memData.records, blacklist: memData.blacklist, settings: memData.settings, exportTime: new Date().toISOString(), systemName: '两江医院药学部阳光接待预约系统' };
+    const jsonStr = JSON.stringify(payload, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `预约系统备份_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.json`;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+}
+
+function importLocalBackup() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+            const text = await file.text();
+            const data = JSON.parse(text);
+            if (data.appointments) memData.appointments = data.appointments;
+            if (data.records) memData.records = data.records;
+            if (data.blacklist) memData.blacklist = data.blacklist;
+            if (data.settings) memData.settings = data.settings;
+            saveLocalCache();
+            alert('数据导入成功！页面将刷新。');
+            location.reload();
+        } catch (err) { alert('文件解析失败，请确认是有效的备份文件。'); }
+    };
+    input.click();
+}
+
+function updateDateMax() {
+    const days = memData.settings.advanceDays || 7;
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + days);
+    document.getElementById('bDate').max = maxDate.toISOString().split('T')[0];
+}
+
+function showMsg(id, type, text) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = 'message ' + type;
+    el.innerHTML = text;
+    setTimeout(() => { el.className = 'message'; el.innerHTML = ''; }, 8000);
+}
+
+function formatDate(iso) {
+    if (!iso) return '-';
+    const d = new Date(iso);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('active'); }
+
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('bDate').min = today;
+document.getElementById('filterDate').value = today;
+updateDateMax();
+</script>
+</body>
+</html>
