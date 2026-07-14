@@ -1,5 +1,24 @@
 {
-  "appointments": [],
+  "appointments": [
+    {
+      "id": "1784047157751",
+      "name": "王虎",
+      "gender": "男",
+      "idCard": "522123199005304444",
+      "phone": "18875233341",
+      "company": "重庆两江新区人民医院",
+      "address": "人和",
+      "date": "2026-07-16",
+      "time": "14:00-15:00",
+      "purpose": "药品产品介绍",
+      "remark": "",
+      "submitTime": "2026-07-14T16:39:17.751Z",
+      "status": "rejected",
+      "checkResult": "未在科室完成备案资料",
+      "manualBy": "",
+      "autoCheckTime": "2026-07-14T16:39:17.751Z"
+    }
+  ],
   "records": [],
   "blacklist": [],
   "settings": {
@@ -13,6 +32,6 @@
     "slotLimit": 5,
     "advanceDays": 7
   },
-  "lastUpdate": "2026-07-14T16:37:59.088Z",
+  "lastUpdate": "2026-07-14T16:39:19.756Z",
   "version": "2.0"
 }
